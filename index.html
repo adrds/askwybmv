@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hihi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background-color: #f4b1b1;
+        }
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles"></canvas>
+    <div class="container-fluid">
+        <div class="row justify-content-center align-items-center vh-100 text-center">
+            <div class="col-12 position-relative">
+                <div id="title" class="mb-1" style="display: none;">
+                    <h1>Will You Be My Valentine?</h1>
+                </div>
+                <div class="ratio ratio-16x9 mb-2" id="videoContainer" style="display:none; max-width: 700px; margin: 0 auto;">
+                    <video id="pixelvideo" muted style="display:none;">
+                        <source src="assets/pixel.mp4" type="video/mp4">
+                        Your browser does not support the video file.
+                    </video>      
+                </div>
+                <div class="mb-2" id="reactionContainer" style="display:none; max-width: 650px; margin: 0 auto;">
+                    <img id="cry" class="img-fluid px-5" style="display:none;">   
+                </div>
+                <button id="playBtn" class="btn btn-danger p-1 fs-4 p-2">Tap here<i class="bi bi-hand-index-fill ms-2"></i></button> 
+                <div id="btns" style="display: none;">
+                    <button id="yes-btn" class="btn btn-success px-5 mx-2">Yes</button>
+                    <button id="no-btn" class="btn btn-danger px-5 mx-2">No</button>
+                </div>
+                <h6 class="mt-2" style="display: none;" id="response"></h6>
+            </div>
+        </div>
+    </div>
+    <iframe src="https://s3-eu-west-1.amazonaws.com/omegasquadron.neilbryson.net/silence.mp3" allow="autoplay" class="d-none" id="audio"></iframe>
+    <audio id="bgmusic" loop>
+        <source src="https://adrds.github.io/askwybmv/assets/bgmusic.mp3" type="audio/mp3">
+    </audio>
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script>
+    let title = document.getElementById("title");
+    let videoContainer = document.getElementById("videoContainer");
+    let reactionContainer = document.getElementById("reactionContainer");
+    let video = document.getElementById("pixelvideo");
+    let btns = document.getElementById("btns");
+    let response = document.getElementById("response");
+    let cryImage = document.getElementById("cry");
+
+    const noBtn = document.getElementById("no-btn");
+    const yesBtn = document.getElementById("yes-btn");
+    const playBtn = document.getElementById("playBtn");
+
+    playBtn.addEventListener("click", () => {
+        videoContainer.style.display = "block";
+        video.style.display = "block";
+        if (video.paused) {
+            video.play();
+            playBtn.style.display = "none";
+        }
+    });
+    const canvas = document.getElementById("particles");
+    const ctx = canvas.getContext("2d");
+    const hearts = [];
+    const heartImage = new Image();
+    heartImage.src = "assets/heart-particle.png";
+    
+    window.onload = function() {
+        const bgmusic = document.getElementById("bgmusic");
+        bgmusic.volume = 0.5;  // Set volume
+        bgmusic.muted = true; // Start muted
+    };  
+
+    let responseNo = false;
+    let noCount = 0;
+    const responses = [
+        "Bebeeer hngggg bakit no? 😢",
+        "AAAAAAAAAAAA BEBEEEER 😭",
+        "NGIII BAKIT NO 🥲"
+    ];
+
+    yesBtn.addEventListener("click", () => {
+        response.style.display = "block";
+        response.innerText = "AAAAAA HIHI WALA NA BAWIAN. I LOVE YOUUU 🥹";
+        noBtn.disabled = true;
+        cry.src = "assets/happy.png";
+    });
+
+    noBtn.addEventListener("click", () => {
+        response.style.display = "block";
+        if (responseNo) {
+            response.innerText = responses[Math.floor(Math.random() * responses.length)];
+        }else{
+            response.innerText = "Beber no? Sure? 😢";
+            responseNo = true;
+        }
+        if(noCount == 0){
+            cry.src = "assets/no1.png";
+        }else if(noCount == 1){
+            cry.src = "assets/no2.png";
+        }else if(noCount >= 2){
+            cry.src = "assets/no3.png";
+        }
+        noCount++;
+    });
+
+
+    resizeCanvas();
+    
+    video.onended = function () {
+        title.style.display = "block";
+        btns.style.display = "block";
+        video.style.display = "none";
+        videoContainer.style.display = "none";
+        reactionContainer.style.display = "block";
+        cry.style.display = "block";
+        cry.src = "assets/no0.png";
+        bgmusic.play().then(() => {
+            bgmusic.muted = false;
+        }).catch(error => {
+            console.log("Autoplay blocked, waiting for user interaction.");
+        });
+        animate();
+        addHeart();
+    };
+    
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+
+    // Create heart particles
+    function createHeart() {
+        return {
+            x: Math.random() * canvas.width,
+            y: canvas.height + Math.random() * 100, // Start below the screen
+            size: Math.random() * 40 + 30, // Random size
+            speed: Math.random() * 2 + 1, // Random speed
+            opacity: Math.random() * 0.7 + 0.7 // Random transparency
+        };
+    }
+
+    // Animate hearts floating up
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        hearts.forEach((heart, index) => {
+            heart.y -= heart.speed; // Move up
+            ctx.globalAlpha = heart.opacity; // Set opacity
+            ctx.drawImage(heartImage, heart.x, heart.y, heart.size, heart.size);
+        });
+
+        requestAnimationFrame(animate);
+    }
+
+    function addHeart() {
+        hearts.push(createHeart());
+        setTimeout(addHeart, Math.random() * 300 + 1000);
+    }
+</script>
+</html>
